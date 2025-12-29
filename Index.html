@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <title>Читас для детей - Понедельник</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { 
+            background: linear-gradient(135deg, #FF6B6B, #FFA500); 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.2em; opacity: 0.95; }
+        .date-badge { 
+            display: inline-block; 
+            background: rgba(255,255,255,0.3); 
+            padding: 10px 20px; 
+            border-radius: 25px; 
+            margin-top: 10px; 
+            font-weight: bold; 
+        }
+        .score-board { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
+        }
+        .score-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+        .score-item { 
+            text-align: center; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB); 
+            border-radius: 15px; 
+            transition: transform 0.3s; 
+        }
+        .score-item:hover { transform: scale(1.05); }
+        .score-label { font-size: 0.9em; color: #666; margin-bottom: 8px; font-weight: 600; }
+        .score-value { font-size: 2.5em; font-weight: bold; color: #1976D2; }
+        .progress-bar { 
+            background: #E0E0E0; 
+            height: 30px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .progress-fill { 
+            background: linear-gradient(90deg, #4CAF50, #8BC34A); 
+            height: 100%; 
+            width: 0; 
+            transition: width 0.5s ease; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 1.1em; 
+        }
+        .final-result { 
+            background: linear-gradient(135deg, #FFD700, #FFA500); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            margin-top: 30px; 
+            display: none; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
+        }
+        .final-result.show { display: block; }
+        .final-result h2 { color: white; font-size: 3em; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .final-score { font-size: 5em; color: white; font-weight: bold; margin: 30px 0; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
+        .section { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2); 
+            position: relative; 
+            transition: all 0.3s; 
+        }
+        .section:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .section.completed::after { 
+            content: '✓'; 
+            position: absolute; 
+            top: 25px; 
+            right: 25px; 
+            width: 60px; 
+            height: 60px; 
+            background: #4CAF50; 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2.5em; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            user-select: none; 
+            padding: 10px; 
+            border-radius: 10px; 
+            transition: background 0.3s; 
+        }
+        .section-header:hover { background: #F5F5F5; }
+        .section-title { font-size: 2em; color: #333; font-weight: 700; }
+        .section-badge { 
+            background: linear-gradient(135deg, #FF6B6B, #FFA500); 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+        .section-content { display: none; margin-top: 25px; }
+        .section.active .section-content { display: block; }
+        .story-text { 
+            line-height: 1.9; 
+            color: #444; 
+            margin-bottom: 25px; 
+            background: #F8F9FA; 
+            padding: 25px; 
+            border-radius: 15px; 
+            border-left: 5px solid #FF6B6B; 
+        }
+        .story-text p { margin-bottom: 18px; font-size: 1.05em; }
+        .story-text strong { color: #FF6B6B; font-size: 1.1em; }
+        .story-highlight { 
+            background: linear-gradient(120deg, #FFF9C4 0%, #FFE082 100%); 
+            padding: 3px 8px; 
+            border-radius: 5px; 
+            font-weight: 600; 
+        }
+        .game-container { 
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB); 
+            padding: 30px; 
+            border-radius: 20px; 
+            margin-top: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .game-container h3 { 
+            color: #1976D2; 
+            margin-bottom: 25px; 
+            font-size: 1.8em; 
+            text-align: center; 
+        }
+        .quiz-question { 
+            font-size: 1.3em; 
+            font-weight: bold; 
+            margin-bottom: 25px; 
+            color: #333; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+            border-left: 5px solid #1976D2; 
+        }
+        .quiz-option { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            cursor: pointer; 
+            border: 3px solid transparent; 
+            transition: all 0.3s; 
+            font-size: 1.1em; 
+            font-weight: 500; 
+        }
+        .quiz-option:hover { 
+            background: #FFF9C4; 
+            transform: translateX(10px); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+        }
+        .quiz-option.correct { 
+            background: #C8E6C9; 
+            border-color: #4CAF50; 
+        }
+        .quiz-option.wrong { 
+            background: #FFCDD2; 
+            border-color: #F44336; 
+        }
+        .match-game { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .match-column h4 { 
+            color: #1976D2; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            padding: 15px; 
+            background: white; 
+            border-radius: 12px; 
+            font-size: 1.3em; 
+        }
+        .match-item { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            border: 3px solid transparent; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            transition: all 0.3s; 
+            font-weight: 600; 
+            font-size: 1.05em; 
+        }
+        .match-item:hover { 
+            background: #E1F5FE; 
+            transform: scale(1.05); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+        }
+        .match-item.selected { 
+            border-color: #2196F3; 
+            background: #BBDEFB; 
+            box-shadow: 0 0 20px rgba(33,150,243,0.4); 
+        }
+        .match-item.matched { 
+            background: #C8E6C9; 
+            border-color: #4CAF50; 
+            opacity: 0.7; 
+            cursor: default; 
+        }
+        .memory-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px; 
+        }
+        .memory-card { 
+            aspect-ratio: 1; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            border-radius: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 3em; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+        }
+        .memory-card:hover { transform: scale(1.1); }
+        .memory-card.flipped { 
+            background: white; 
+            color: #333; 
+        }
+        .memory-card.matched { 
+            opacity: 0.5; 
+            cursor: default; 
+            background: #C8E6C9; 
+        }
+        .feedback { 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-top: 25px; 
+            font-weight: bold; 
+            text-align: center; 
+            font-size: 1.2em; 
+        }
+        .feedback.success { 
+            background: linear-gradient(135deg, #C8E6C9, #A5D6A7); 
+            color: #1B5E20; 
+            border: 3px solid #4CAF50; 
+        }
+        .feedback.error { 
+            background: linear-gradient(135deg, #FFCDD2, #EF9A9A); 
+            color: #B71C1C; 
+            border: 3px solid #F44336; 
+        }
+        .fun-fact { 
+            background: linear-gradient(135deg, #E1BEE7, #CE93D8); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 20px 0; 
+            color: #4A148C; 
+            font-weight: bold; 
+            font-size: 1.05em; 
+            border-left: 5px solid #9C27B0; 
+        }
+        .btn {
+            background: white;
+            color: #4CAF50;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) { 
+            .score-grid { grid-template-columns: 1fr; } 
+            .match-game { grid-template-columns: 1fr; } 
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+            .header h1 { font-size: 2em; }
+            .section-title { font-size: 1.5em; }
+            .final-score { font-size: 3em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 Читас для детей</h1>
+            <p>Понедельник • Недельная глава Ваехи</p>
+            <div class="date-badge">9 Тевета 5786</div>
+            <p style="font-size: 0.9em; margin-top: 15px; opacity: 0.9;">
+                За безопасность евреев в Эрец Исраэль 🇮🇱
+            </p>
+        </div>
+
+        <div class="score-board">
+            <div class="score-grid">
+                <div class="score-item">
+                    <div class="score-label">🏆 Баллы</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">⭐ Звезды</div>
+                    <div class="score-value" id="stars">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✅ Выполнено</div>
+                    <div class="score-value" id="done">0/6</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress">0%</div>
+            </div>
+            <div class="final-result" id="final">
+                <h2>🎉 МОЛОДЕЦ! 🎉</h2>
+                <div class="final-score" id="finalScore">0</div>
+                <p style="color: white; font-size: 1.5em; margin: 20px 0;">
+                    Ты изучил весь Читас на сегодня!
+                </p>
+                <p style="font-size: 4em;">⭐⭐⭐⭐⭐</p>
+                <button class="btn" onclick="location.reload()">Начать заново</button>
+            </div>
+        </div>
+
+        <div class="section" id="s1">
+            <div class="section-header" onclick="toggleSection(1)">
+                <div class="section-title">📜 ХУМАШ</div>
+                <div class="section-badge">50 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>🎯 Благословение Эфраима и Менаше:</strong></p>
+                    <p>Яаков уже не видел так хорошо из-за своего возраста. Йосеф привел своих сыновей <span class="story-highlight">Эфраима и Менаше</span> к дедушке для благословения.</p>
+                    <p>Яаков обнял и поцеловал их! Он сказал Йосефу: "Я даже не думал, что смогу увидеть ТЕБЯ снова, а Всевышний показал мне даже твоих детей!" 💙</p>
+                    <p><strong>Особое благословение:</strong></p>
+                    <p>Яаков благословил их быть <span class="story-highlight">как рыбы</span> 🐟 - что это значит?</p>
+                    <p>Рыбы не могут жить без воды - вода дает им жизнь. Так и еврей должен быть всегда связан со своим источником жизни - Всевышним! Когда мы делаем то, что хочет Всевышний, изучаем Тору и выполняем заповеди, мы получаем благословения! ✨</p>
+                </div>
+                <div class="fun-fact">
+                    💡 <strong>Знаешь ли ты?</strong> До сих пор родители благословляют сыновей в пятницу вечером словами: "Да сделает тебя Б-г как Эфраима и Менаше!"
+                </div>
+                <div class="game-container">
+                    <h3>🎮 Викторина по Хумашу</h3>
+                    <div class="quiz-question">С кем Яаков сравнил Эфраима и Менаше в своем благословении?</div>
+                    <div id="q1"></div>
+                    <div id="f1"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="s2">
+            <div class="section-header" onclick="toggleSection(2)">
+                <div class="section-title">🎵 ТЕГИЛИМ</div>
+                <div class="section-badge">50 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>🙏 Главы 49-54 - Урок царя Давида:</strong></p>
+                    <p>В главе 49 царь Давид учит нас важному уроку о <span class="story-highlight">"маленьких" грехах</span>, которые люди думают, что они не важны.</p>
+                    <p>"Авон Акейвай Йесубейни" - <span class="story-highlight">"грехи моих пяток окружают меня"</span></p>
+                    <p>Царь Давид говорит, что человек должен беспокоиться не только о "больших" заповедях. Нужно думать и о "маленьких" заповедях!</p>
+                    <p>Мы должны быть внимательны к хасидским обычаям - например, читать Читас каждый день или любить каждого еврея! 💚</p>
+                </div>
+                <div class="fun-fact">
+                    ✨ <strong>Совет Ребе:</strong> Каждая заповедь важна! Даже самая "маленькая" заповедь может принести огромную радость Всевышнему!
+                </div>
+                <div class="game-container">
+                    <h3>🎯 Найди пары</h3>
+                    <div class="match-game">
+                        <div class="match-column">
+                            <h4>Иврит</h4>
+                            <div id="left"></div>
+                        </div>
+                        <div class="match-column">
+                            <h4>Русский</h4>
+                            <div id="right"></div>
+                        </div>
+                    </div>
+                    <div id="f2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="s3">
+            <div class="section-header" onclick="toggleSection(3)">
+                <div class="section-title">💎 ТАНИЯ</div>
+                <div class="section-badge">60 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>📖 Глава 8 - Война внутри нас:</strong></p>
+                    <p>В сегодняшней главе мы узнаем о <span class="story-highlight">войне между двумя душами</span> внутри еврея!</p>
+                    <p>🔴 <strong>Животная душа</strong> - живет в <span class="story-highlight">ЛЕВОЙ стороне сердца</span>.</p>
+                    <p>⚪ <strong>Б-жественная душа</strong> - живет в мозгу и в <span class="story-highlight">ПРАВОЙ стороне сердца</span>.</p>
+                    <p><strong>Пример с гневом:</strong> 😠 Кто-то сделал тебе что-то плохое, и ты злишься! Это чувство гнева приходит из животной души.</p>
+                    <p>Б-жественная душа начинает в мозгу! Она использует разум чтобы думать о величии Всевышнего. ✨</p>
+                </div>
+                <div class="fun-fact">
+                    💪 <strong>Важно знать:</strong> Эти две души воюют друг с другом! Каждая хочет контролировать все тело.
+                </div>
+                <div class="game-container">
+                    <h3>🎮 Викторина</h3>
+                    <div class="quiz-question">Где находится "дом" животной души?</div>
+                    <div id="q3"></div>
+                    <div id="f3"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="s4">
+            <div class="section-header" onclick="toggleSection(4)">
+                <div class="section-title">📅 АЙОМ ЙОМ</div>
+                <div class="section-badge">40 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>🎓 9 Тевета - Обычай в "Алейну":</strong></p>
+                    <p>В конце каждой молитвы мы говорим "Алейну лешабеах".</p>
+                    <p>Когда мы говорим слова <span class="story-highlight">"Шеэм миштахавим лаэвель валарик"</span> - "что они кланяются пустоте" (про идолопоклонников), мы делаем что-то необычное... 🤔</p>
+                    <p><strong>Мы немного плюем! 💦</strong></p>
+                    <p>Почему? Мы не хотим глотать слюну, которая образовалась от этих слов, поэтому мы ее выплевываем.</p>
+                </div>
+                <div class="fun-fact">
+                    💫 <strong>Интересно:</strong> Этот обычай показывает наше отношение к идолопоклонству - с полным отвращением!
+                </div>
+                <div class="game-container">
+                    <h3>🎲 Игра на память</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Найди одинаковые пары!</p>
+                    <div class="memory-grid" id="mem"></div>
+                    <div id="f4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="s5">
+            <div class="section-header" onclick="toggleSection(5)">
+                <div class="section-title">⚖️ РАМБАМ</div>
+                <div class="section-badge">50 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>📜 Законы о судебных спорах:</strong></p>
+                    <p>Что делать, когда два человека спорят о деньгах в Бейт Дине?</p>
+                    <p>Представь: Реувен говорит: "Ты должен мне 100 шекелей!" 💰</p>
+                    <p>А Шимон отвечает: "Да, но только 50 шекелей!"</p>
+                    <p>Шимон должен сделать <span class="story-highlight">шевуа (клятву)</span>, что он должен только 50, и сразу заплатить!</p>
+  </div>
+                <div class="fun-fact">
+                    ⚖️ <strong>Мудрость Торы:</strong> Еврейский закон очень точный и справедливый!
+                </div>
+                <div class="game-container">
+                    <h3>❓ Вопрос</h3>
+                    <div class="quiz-question">Что должен сделать Шимон, если он соглашается с частью долга?</div>
+                    <div id="q5"></div>
+                    <div id="f5"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="s6">
+            <div class="section-header" onclick="toggleSection(6)">
+                <div class="section-title">🌟 ГЕУЛА</div>
+                <div class="section-badge">50 баллов</div>
+            </div>
+            <div class="section-content">
+                <div class="story-text">
+                    <p><strong>🌈 Завтра - пост 10 Тевета:</strong></p>
+                    <p>Рамбам учит нас чему-то удивительному!</p>
+                    <p><span class="story-highlight" style="font-size: 1.2em;">Когда придет Мошиах, постов больше не будет! Они станут днями радости и счастья! 🎉</span></p>
+                    <p>✨ Пока мы в изгнании - это дни поста<br>
+                    ✨ Когда придет Мошиах - они станут праздниками!</p>
+                    <p>Это было в плане Торы с самого начала! 💫</p>
+                </div>
+                <div class="fun-fact">
+                    🔥 <strong>Подумай:</strong> Каждая заповедь приближает день, когда посты станут праздниками!
+                </div>
+                <div class="game-container">
+                    <h3>✨ Финальный вопрос</h3>
+                    <div class="quiz-question">Что произойдет с постами, когда придет Мошиах?</div>
+                    <div id="q6"></div>
+                    <div id="f6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {score: 0, stars: 0, done: 0, completed: {}};
+
+        function toggleSection(n) {
+            const section = document.getElementById('s' + n);
+            section.classList.toggle('active');
+        }
+
+        function update() {
+            document.getElementById('score').textContent = state.score;
+            document.getElementById('stars').textContent = state.stars;
+            document.getElementById('done').textContent = state.done + '/6';
+            const progress = (state.done / 6) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('progress').textContent = Math.round(progress) + '%';
+            
+            if (state.done === 6) {
+                document.getElementById('final').classList.add('show');
+                document.getElementById('finalScore').textContent = state.score + ' баллов!';
+            }
+        }
+
+        function addScore(points, section) {
+            if (!state.completed[section]) {
+                state.score += points;
+                state.stars += Math.floor(points / 10);
+                state.done++;
+                state.completed[section] = true;
+                document.getElementById('s' + section).classList.add('completed');
+                update();
+            }
+        }
+
+        // Q1
+        const q1Opts = [
+            {t: 'С птицами 🐦', c: false},
+            {t: 'С рыбами 🐟', c: true},
+            {t: 'С львами 🦁', c: false},
+            {t: 'С деревьями 🌳', c: false}
+        ];
+        
+        q1Opts.forEach(opt => {
+            const d = document.createElement('div');
+            d.className = 'quiz-option';
+            d.textContent = opt.t;
+            d.onclick = () => {
+                if (d.classList.contains('correct') || d.classList.contains('wrong')) return;
+                document.querySelectorAll('#q1 .quiz-option').forEach(el => el.style.pointerEvents = 'none');
+                if (opt.c) {
+                    d.classList.add('correct');
+                    document.getElementById('f1').innerHTML = '<div class="feedback success">🎉 Отлично! Яаков благословил их быть как рыбы! +50 баллов!</div>';
+                    addScore(50, 1);
+                } else {
+                    d.classList.add('wrong');
+                    document.querySelectorAll('#q1 .quiz-option').forEach(el => {
+                        if (q1Opts.find(o => o.t === el.textContent && o.c)) el.classList.add('correct');
+                    });
+                    document.getElementById('f1').innerHTML = '<div class="feedback error">❌ Попробуй еще раз! Правильный ответ: с рыбами 🐟</div>';
+                }
+            };
+            document.getElementById('q1').appendChild(d);
+        });
+
+        // Q2 Match
+        const pairs = {
+            'Авон': 'Грех', 
+            'Акейвай': 'Пятки', 
+            'Митзвот': 'Заповеди', 
+            'Читас': 'Ежедневная учеба'
+        };
+        const keys = Object.keys(pairs);
+        const vals = Object.values(pairs).sort(() => Math.random() - 0.5);
+        let sel1 = null, sel2 = null, mCount = 0;
+
+        keys.forEach(k => {
+            const d = document.createElement('div');
+            d.className = 'match-item';
+            d.textContent = k;
+            d.dataset.key = k;
+            d.onclick = () => {
+                if (d.classList.contains('matched')) return;
+                if (sel1) sel1.classList.remove('selected');
+                sel1 = d;
+                d.classList.add('selected');
+                if (sel2) checkMatch();
+            };
+            document.getElementById('left').appendChild(d);
+        });
+
+        vals.forEach(v => {
+            const d = document.createElement('div');
+            d.className = 'match-item';
+            d.textContent = v;
+            d.dataset.val = v;
+            d.onclick = () => {
+                if (d.classList.contains('matched')) return;
+                if (sel2) sel2.classList.remove('selected');
+                sel2 = d;
+                d.classList.add('selected');
+                if (sel1) checkMatch();
+            };
+            document.getElementById('right').appendChild(d);
+        });
+
+        function checkMatch() {
+            if (pairs[sel1.dataset.key] === sel2.dataset.val) {
+                sel1.classList.add('matched');
+                sel2.classList.add('matched');
+                mCount++;
+                if (mCount === keys.length) {
+                    document.getElementById('f2').innerHTML = '<div class="feedback success">🎊 Супер! Все пары найдены! +50 баллов!</div>';
+                    addScore(50, 2);
+                }
+            } else {
+                document.getElementById('f2').innerHTML = '<div class="feedback error">❌ Не подходит! Попробуй снова!</div>';
+                setTimeout(() => {
+                    sel1.classList.remove('selected');
+                    sel2.classList.remove('selected');
+                    document.getElementById('f2').innerHTML = '';
+                }, 1500);
+            }
+            sel1 = null;
+            sel2 = null;
+        }
+
+        // Q3
+        const q3Opts = [
+            {t: 'В правой стороне сердца', c: false},
+            {t: 'В левой стороне сердца', c: true},
+            {t: 'В голове', c: false},
+            {t: 'В руках', c: false}
+        ];
+        
+        q3Opts.forEach(opt => {
+            const d = document.createElement('div');
+            d.className = 'quiz-option';
+            d.textContent = opt.t;
+            d.onclick = () => {
+                if (d.classList.contains('correct') || d.classList.contains('wrong')) return;
+                document.querySelectorAll('#q3 .quiz-option').forEach(el => el.style.pointerEvents = 'none');
+                if (opt.c) {
+                    d.classList.add('correct');
+                    document.getElementById('f3').innerHTML = '<div class="feedback success">🏆 Правильно! В левой стороне сердца! +60 баллов!</div>';
+                    addScore(60, 3);
+                } else {
+                    d.classList.add('wrong');
+                    document.querySelectorAll('#q3 .quiz-option').forEach(el => {
+                        if (q3Opts.find(o => o.t === el.textContent && o.c)) el.classList.add('correct');
+                    });
+                    document.getElementById('f3').innerHTML = '<div class="feedback error">❌ Не совсем! Правильный ответ: в левой стороне сердца</div>';
+                }
+            };
+            document.getElementById('q3').appendChild(d);
+        });
+
+        // Q4 Memory
+        const memCards = ['🕯️', '📿', '✡️', '📖', '💎', '⭐'];
+        const memDeck = memCards.concat(memCards).sort(() => Math.random() - 0.5);
+        let flipped = [];
+        let matched = [];
+
+        memDeck.forEach((card, idx) => {
+            const d = document.createElement('div');
+            d.className = 'memory-card';
+            d.textContent = '❓';
+            d.dataset.card = card;
+            d.dataset.idx = idx;
+            d.onclick = () => {
+                if (flipped.length >= 2 || d.classList.contains('flipped') || matched.indexOf(idx) !== -1) return;
+                d.classList.add('flipped');
+                d.textContent = card;
+                flipped.push(idx);
+                if (flipped.length === 2) {
+                    setTimeout(() => {
+                        const c1 = document.querySelector('[data-idx="' + flipped[0] + '"]');
+                        const c2 = document.querySelector('[data-idx="' + flipped[1] + '"]');
+                        if (c1.dataset.card === c2.dataset.card) {
+                            matched.push(flipped[0], flipped[1]);
+                            c1.classList.add('matched');
+                            c2.classList.add('matched');
+                            if (matched.length === memDeck.length) {
+                                document.getElementById('f4').innerHTML = '<div class="feedback success">🎯 Замечательно! +40 баллов!</div>';
+                                addScore(40, 4);
+                            }
+                        } else {
+                            c1.classList.remove('flipped');
+                            c2.classList.remove('flipped');
+                            c1.textContent = '❓';
+                            c2.textContent = '❓';
+                        }
+                        flipped = [];
+                    }, 800);
+                }
+            };
+            document.getElementById('mem').appendChild(d);
+        });
+
+        // Q5
+        const q5Opts = [
+            {t: 'Ничего не делать', c: false},
+            {t: 'Сделать шевуа и заплатить', c: true},
+            {t: 'Только заплатить', c: false},
+            {t: 'Спросить раввина', c: false}
+        ];
+        
+        q5Opts.forEach(opt => {
+            const d = document.createElement('div');
+            d.className = 'quiz-option';
+            d.textContent = opt.t;
+            d.onclick = () => {
+                if (d.classList.contains('correct') || d.classList.contains('wrong')) return;
+                document.querySelectorAll('#q5 .quiz-option').forEach(el => el.style.pointerEvents = 'none');
+                if (opt.c) {
+                    d.classList.add('correct');
+                    document.getElementById('f5').innerHTML = '<div class="feedback success">🎉 Верно! Шевуа и заплатить! +50 баллов!</div>';
+                    addScore(50, 5);
+                } else {
+                    d.classList.add('wrong');
+                    document.querySelectorAll('#q5 .quiz-option').forEach(el => {
+                        if (q5Opts.find(o => o.t === el.textContent && o.c)) el.classList.add('correct');
+                    });
+                    document.getElementById('f5').innerHTML = '<div class="feedback error">❌ Не то! Правильный ответ: сделать шевуа и заплатить</div>';
+                }
+            };
+            document.getElementById('q5').appendChild(d);
+        });
+
+        // Q6
+        const q6Opts = [
+            {t: 'Останутся постами', c: false},
+            {t: 'Станут праздниками', c: true},
+            {t: 'Исчезнут совсем', c: false},
+            {t: 'Станут короче', c: false}
+        ];
+        
+        q6Opts.forEach(opt => {
+            const d = document.createElement('div');
+            d.className = 'quiz-option';
+            d.textContent = opt.t;
+            d.onclick = () => {
+                if (d.classList.contains('correct') || d.classList.contains('wrong')) return;
+                document.querySelectorAll('#q6 .quiz-option').forEach(el => el.style.pointerEvents = 'none');
+                if (opt.c) {
+                    d.classList.add('correct');
+                    document.getElementById('f6').innerHTML = '<div class="feedback success">🎉 Верно! Они станут праздниками! +50 баллов!</div>';
+                    addScore(50, 6);
+                } else {
+                    d.classList.add('wrong');
+                    document.querySelectorAll('#q6 .quiz-option').forEach(el => {
+                        if (q6Opts.find(o => o.t === el.textContent && o.c)) el.classList.add('correct');
+                    });
+                    document.getElementById('f6').innerHTML = '<div class="feedback error">❌ Попробуй еще! Правильный ответ: станут праздниками</div>';
+                }
+            };
+            document.getElementById('q6').appendChild(d);
+        });
+    </script>
+</body>
+</html>
